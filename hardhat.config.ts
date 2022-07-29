@@ -1,4 +1,7 @@
-module.exports = {
+import { HardhatUserConfig } from "hardhat/config";
+import "@nomicfoundation/hardhat-toolbox";
+
+const config: HardhatUserConfig = {
   solidity: "0.8.4",
   networks: {
     hardhat: {
@@ -14,3 +17,5 @@ module.exports = {
     // }
   }
 };
+
+export default config;

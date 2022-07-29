@@ -14,7 +14,7 @@ contract FirstNft is ERC721Enumerable, ERC721URIStorage {
     }
 
     function mint(address owner, string memory tokenURI) public payable returns (uint256) {
-        require(_counter.current() < 99, "Total supply cannot exceed 100");
+        require(_counter.current() < 99, "Total nft supply cannot exceed 100");
         require(msg.value >= 10000000000000000, "You need to pay at least 0.01 ETH to mint");
         _counter.increment();
 

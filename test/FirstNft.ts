@@ -1,57 +1,63 @@
+import {loadFixture} from '@nomicfoundation/hardhat-network-helpers';
+
 const {expect} = require("chai")
 const {ethers} = require("hardhat")
 
-describe("FirstNft", async function () {
-  // const ONE_GWEI = 1_000_000_000;
-  const MIN_MINT = 1_000_000_000_000_0000;
+describe("FirstNft", function () {
+  const MIN_MINT = ethers.utils.parseEther("0.01");
+  const MINUS_MIN_MINT = ethers.utils.parseEther("-0.01"); // NOTE -> -MIN_MINT will cause overflow error
+
+  async function deployFixture() {
+    const [owner, otherAccount] = await ethers.getSigners();
+
+    const FirstNft = await ethers.getContractFactory("FirstNft")
+    const contract = await FirstNft.deploy();
+    await contract.deployed();
+
+    return {contract, owner, otherAccount};
+
+  }
+
+  it("Will deploy contract", async function () {
+    await loadFixture(deployFixture);
+  });
 
   it("Will not mint insufficient ether", async function () {
-    const [owner, otherAccount] = await ethers.getSigners();
+    const {contract, owner} = await loadFixture(deployFixture);
 
-    const FirstNft = await ethers.getContractFactory("FirstNft")
-    const contract = await FirstNft.deploy()
-    await contract.deployed()
-
-    await expect(contract.mint(owner, "first image", {value: 1})).to.be.revertedWith(
+    await expect(contract.mint(owner.address, "first image", {value: 1})).to.be.revertedWith(
         "You need to pay at least 0.01 ETH to mint"
     );
-  })
+  });
 
   it("Will not mint 101 nft", async function () {
-    const [owner, otherAccount] = await ethers.getSigners();
-
-    const FirstNft = await ethers.getContractFactory("FirstNft")
-    const contract = await FirstNft.deploy()
-    await contract.deployed();
+    const {contract, owner} = await loadFixture(deployFixture);
 
     for (let i = 0; i < 100; i++) {
-      contract.mint(owner, "first image", {value: MIN_MINT});
+      contract.mint(owner.address, i + "-th image", {value: MIN_MINT});
     }
-    await expect(contract.mint(owner, "first image", {value: MIN_MINT})).to.be.revertedWith(
-        "Total supply cannot exceed 100"
+    await expect(contract.mint(owner.address, "101th image", {value: MIN_MINT})).to.be.revertedWith(
+        "Total nft supply cannot exceed 100"
     );
-  })
+  });
 
   it("Will transfer only to owner and change balance", async function () {
-    const [owner, otherAccount] = await ethers.getSigners();
+    const {contract, owner, otherAccount} = await loadFixture(deployFixture);
 
-    const FirstNft = await ethers.getContractFactory("FirstNft")
-    const contract = await FirstNft.deploy()
-    await contract.deployed();
-    contract.mint(otherAccount, "first image", {value: MIN_MINT});
+    contract.mint(otherAccount.address, "first image", {value: MIN_MINT});
 
     expect(await ethers.provider.getBalance(contract.address)).to.equal(
         MIN_MINT
     );
 
-    await expect(await contract.connect(otherAccount).withdraw()).to.be.revertedWith(
+    await expect(contract.connect(otherAccount).withdraw()).to.be.revertedWith(
         "Only owner can withdraw funds"
     );
 
     await expect(contract.connect(owner).withdraw()).to.changeEtherBalances(
         [owner, contract],
-        [MIN_MINT, -MIN_MINT]
+        [MIN_MINT, MINUS_MIN_MINT]
     );
-  })
+  });
 
-})
+});

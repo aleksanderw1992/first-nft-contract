@@ -1,0 +1,11 @@
+macbook@MacBook-Pro first-nft-contract % npx hardhat test
+
+
+  FirstNft
+    ✔ Will deploy contract (506ms)
+    ✔ Will not mint insufficient ether (66ms)
+    ✔ Will not mint 101 nft (2891ms)
+    ✔ Will transfer only to owner and change balance (65ms)
+
+
+  4 passing (4s)
