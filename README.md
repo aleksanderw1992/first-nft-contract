@@ -1,13 +1,10 @@
-# Sample Hardhat Project
+# Nft project from hardhat
 
-This project demonstrates a basic Hardhat use case. It comes with a sample contract, a test for that contract, and a script that deploys that contract.
+With spec:
+- Compatible with ERC-721 standard
+- Max 100 tokens
+- 0.01 ETH mint cost
+- Max 5 Nfts in single transaction
+- Owner (ie. deployer) can withdraw funds from minting fees
 
-Try running some of the following tasks:
-
-```shell
-npx hardhat help
-npx hardhat test
-GAS_REPORT=true npx hardhat test
-npx hardhat node
-npx hardhat run scripts/deploy.ts
-```
+ETH contract:
