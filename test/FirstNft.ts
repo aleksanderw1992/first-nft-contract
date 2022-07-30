@@ -4,6 +4,7 @@ const {expect} = require("chai")
 const {ethers} = require("hardhat")
 
 describe("FirstNft", function () {
+  const INSUFFICIENT_ETHER = ethers.utils.parseEther("0.009");
   const MIN_MINT_SINGLE_NFT = ethers.utils.parseEther("0.01");
   const MINUS_MINT_SINGLE_NFT = ethers.utils.parseEther("-0.01"); // NOTE -> -MIN_MINT_SINGLE_NFT will cause overflow error
   const MINT_TWO_NFT = ethers.utils.parseEther("0.02");
@@ -28,7 +29,7 @@ describe("FirstNft", function () {
   it("Will not mint insufficient ether", async function () {
     const {contract, owner} = await loadFixture(deployFixture);
 
-    await expect(contract.mint(owner.address, "first image", {value: 1})).to.be.revertedWith(
+    await expect(contract.mint(owner.address, "first image", {value: INSUFFICIENT_ETHER})).to.be.revertedWith(
         "You need to pay at least 0.01 ETH for each NFT to mint"
     );
   });
@@ -44,13 +45,13 @@ describe("FirstNft", function () {
   it("Will  mint 2 nfts in a single transaction", async function () {
     const {contract, owner} = await loadFixture(deployFixture);
 
-    contract.mintMany(owner.address, ["a", "b"], {value: MINT_TWO_NFT});
+    await expect(contract.mintMany(owner.address, ["a", "b"], {value: MINT_TWO_NFT})).not.to.be.reverted;
   });
 
   it("Will  mint 5 nfts in a single transaction", async function () {
     const {contract, owner} = await loadFixture(deployFixture);
 
-    contract.mintMany(owner.address, ["a", "b", "c", "d", "e"], {value: MINT_FIVE_NFT});
+    await expect(contract.mintMany(owner.address, ["a", "b", "c", "d", "e"], {value: MINT_FIVE_NFT})).not.to.be.reverted;
   });
 
   it("Will not mint 6 nfts in a single transaction", async function () {
@@ -64,8 +65,8 @@ describe("FirstNft", function () {
   it("Will not mint 101 nft", async function () {
     const {contract, owner} = await loadFixture(deployFixture);
 
-    for (let i = 0; i < 100; i++) {
-      contract.mint(owner.address, i + "-th image", {value: MIN_MINT_SINGLE_NFT});
+    for (let i = 0; i < 99; i++) {
+      await expect(contract.mint(owner.address, i + "-th image", {value: MIN_MINT_SINGLE_NFT})).not.to.be.reverted;
     }
     await expect(contract.mint(owner.address, "101th image", {value: MIN_MINT_SINGLE_NFT})).to.be.revertedWith(
         "Total nft supply cannot exceed 100"
@@ -75,8 +76,8 @@ describe("FirstNft", function () {
   it("Will not mint 101 nft - mint 2 nfts from 99 index", async function () {
     const {contract, owner} = await loadFixture(deployFixture);
 
-    for (let i = 0; i < 99; i++) {
-      contract.mint(owner.address, i + "-th image", {value: MIN_MINT_SINGLE_NFT});
+    for (let i = 0; i < 98; i++) {
+      await expect(contract.mint(owner.address, i + "-th image", {value: MIN_MINT_SINGLE_NFT})).not.to.be.reverted;
     }
     await expect(contract.mintMany(owner.address, ["100th image", "101th image"], {value: MINT_TWO_NFT})).to.be.revertedWith(
         "Total nft supply cannot exceed 100"
@@ -86,7 +87,7 @@ describe("FirstNft", function () {
   it("Will transfer only to owner and change balance", async function () {
     const {contract, owner, otherAccount} = await loadFixture(deployFixture);
 
-    contract.mint(otherAccount.address, "first image", {value: MIN_MINT_SINGLE_NFT});
+    await expect(contract.mint(otherAccount.address, "first image", {value: MIN_MINT_SINGLE_NFT})).not.to.be.reverted;
 
     expect(await ethers.provider.getBalance(contract.address)).to.equal(
         MIN_MINT_SINGLE_NFT
