@@ -6,5 +6,6 @@ With spec:
 - 0.01 ETH mint cost
 - Max 5 Nfts in single transaction
 - Owner (ie. deployer) can withdraw funds from minting fees
+- with unit tests for corner cases
 
 ETH contract:
