@@ -26,7 +26,7 @@ describe("FirstNft", function () {
     const {contract, owner} = await loadFixture(deployFixture);
 
     await expect(contract.mint(owner.address, "first image", {value: 1})).to.be.revertedWith(
-        "You need to pay at least 0.01 ETH to mint"
+        "You need to pay at least 0.01 ETH for each NFT to mint"
     );
   });
 

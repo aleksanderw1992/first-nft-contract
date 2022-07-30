@@ -10,19 +10,34 @@ contract FirstNft is ERC721Enumerable, ERC721URIStorage {
     Counters.Counter private _counter;
     address private owner = msg.sender;
 
+    uint private constant MAX_SUPPLY = 100;
+    uint private constant MIN_MINT_PRICE = 0.01 ether;
+    uint private constant MAX_AMOUNT_PER_TRANSACTION = 5;
+
     constructor() ERC721("FirstNft", "FN") public {
     }
 
     function mint(address owner, string memory tokenURI) public payable returns (uint256) {
-        require(_counter.current() < 99, "Total nft supply cannot exceed 100");
-        require(msg.value >= 10000000000000000, "You need to pay at least 0.01 ETH to mint");
-        _counter.increment();
+        string[] memory tokenURIs = new string[](1);
+        tokenURIs[0] = tokenURI;
+        return mintMany(owner, tokenURIs)[0];
+//        return mintMany(owner, new string[](tokenURI))[0]; // why TypeError: Invalid type for argument in function call. Invalid implicit conversion from string memory[1] memory to string memory[] memory requested.
+    }
 
-        uint256 newItemId = _counter.current();
-        _mint(owner, newItemId);
-        _setTokenURI(newItemId, tokenURI); // todo change uri to ipfs
+    function mintMany(address owner, string[] memory tokenURIs) public payable returns (uint256[] memory) {
+        require(tokenURIs.length > 0 && tokenURIs.length <= 5, "You can mint at most 5 NFTs in single transaction");
+        require(_counter.current() < MAX_SUPPLY - tokenURIs.length, "Total nft supply cannot exceed 100");
+        require(msg.value >= MIN_MINT_PRICE * tokenURIs.length, "You need to pay at least 0.01 ETH for each NFT to mint");
+        uint256[] memory result = new uint256[](tokenURIs.length);
 
-        return newItemId;
+        for (uint i; i < tokenURIs.length; i++) {
+            _counter.increment();
+            uint256 newItemId = _counter.current();
+            _mint(owner, newItemId);
+            _setTokenURI(newItemId, tokenURIs[i]); // todo change uri to ipfs
+            result[i] = newItemId;
+        }
+        return result;
     }
 
     function withdraw() public onlyOwner {
@@ -34,15 +49,16 @@ contract FirstNft is ERC721Enumerable, ERC721URIStorage {
         _;
     }
 
+    // overriden for inheritance solidity
     function _beforeTokenTransfer(
         address from,
         address to,
         uint256 tokenId
-    ) internal override (ERC721, ERC721Enumerable) {
+    ) internal override(ERC721, ERC721Enumerable) {
         ERC721Enumerable._beforeTokenTransfer(from, to, tokenId);
     }
 
-    function tokenURI(uint256 tokenId) public view virtual override (ERC721, ERC721URIStorage) returns (string memory) {
+    function tokenURI(uint256 tokenId) public view virtual override(ERC721, ERC721URIStorage) returns (string memory) {
         return ERC721URIStorage.tokenURI(tokenId);
     }
 
@@ -50,6 +66,7 @@ contract FirstNft is ERC721Enumerable, ERC721URIStorage {
         return ERC721Enumerable.supportsInterface(interfaceId);
 
     }
+
     function _burn(uint256 tokenId) internal virtual override(ERC721, ERC721URIStorage) {
         ERC721URIStorage._burn(tokenId);
     }
