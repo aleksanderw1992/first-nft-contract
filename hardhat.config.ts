@@ -15,6 +15,10 @@ const config: HardhatUserConfig = {
     //   url: "https://polygon-rpc.com/",
     //   accounts: [process.env.pk]
     // }
+    goerli: {
+      url: process.env.ALCHEMY_URL,
+      accounts: [''+process.env.pk]
+    }
   }
 };
 
