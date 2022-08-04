@@ -14,7 +14,7 @@ describe("FirstNft", function () {
   async function deployFixture() {
     const [owner, otherAccount] = await ethers.getSigners();
 
-    const FirstNft = await ethers.getContractFactory("FirstNft")
+    const FirstNft = await ethers.getContractFactory("FirstNft");
     const contract = await FirstNft.deploy();
     await contract.deployed();
 
@@ -29,7 +29,7 @@ describe("FirstNft", function () {
   it("Will not mint insufficient ether", async function () {
     const {contract, owner} = await loadFixture(deployFixture);
 
-    await expect(contract.mint(owner.address, {value: INSUFFICIENT_ETHER})).to.be.revertedWith(
+    await expect(contract["mint(address)"](owner.address, {value: INSUFFICIENT_ETHER})).to.be.revertedWith(
         "You need to pay at least 0.01 ETH for each NFT to mint"
     );
   });
@@ -37,7 +37,7 @@ describe("FirstNft", function () {
   it("Will not mint insufficient ether - mint 2 nfts", async function () {
     const {contract, owner} = await loadFixture(deployFixture);
 
-    await expect(contract.mintMany(owner.address, 2, {value: MIN_MINT_SINGLE_NFT})).to.be.revertedWith(
+    await expect(contract["mint(address,uint8)"](owner.address, 2, {value: MIN_MINT_SINGLE_NFT})).to.be.revertedWith(
         "You need to pay at least 0.01 ETH for each NFT to mint"
     );
   });
@@ -45,19 +45,19 @@ describe("FirstNft", function () {
   it("Will  mint 2 nfts in a single transaction", async function () {
     const {contract, owner} = await loadFixture(deployFixture);
 
-    await expect(contract.mintMany(owner.address, 2, {value: MINT_TWO_NFT})).not.to.be.reverted;
+    await expect(contract["mint(address,uint8)"](owner.address, 2, {value: MINT_TWO_NFT})).not.to.be.reverted;
   });
 
   it("Will  mint 5 nfts in a single transaction", async function () {
     const {contract, owner} = await loadFixture(deployFixture);
 
-    await expect(contract.mintMany(owner.address, 5, {value: MINT_FIVE_NFT})).not.to.be.reverted;
+    await expect(contract["mint(address,uint8)"](owner.address, 5, {value: MINT_FIVE_NFT})).not.to.be.reverted;
   });
 
   it("Will not mint 6 nfts in a single transaction", async function () {
     const {contract, owner} = await loadFixture(deployFixture);
 
-    await expect(contract.mintMany(owner.address, 6, {value: MINT_SIX_NFT})).to.be.revertedWith(
+    await expect(contract["mint(address,uint8)"](owner.address, 6, {value: MINT_SIX_NFT})).to.be.revertedWith(
         "You can mint at most 5 NFTs in single transaction"
     );
   });
@@ -66,9 +66,9 @@ describe("FirstNft", function () {
     const {contract, owner} = await loadFixture(deployFixture);
 
     for (let i = 0; i < 99; i++) {
-      await expect(contract.mint(owner.address, {value: MIN_MINT_SINGLE_NFT})).not.to.be.reverted;
+      await expect(contract["mint(address)"](owner.address, {value: MIN_MINT_SINGLE_NFT})).not.to.be.reverted;
     }
-    await expect(contract.mint(owner.address, {value: MIN_MINT_SINGLE_NFT})).to.be.revertedWith(
+    await expect(contract["mint(address)"](owner.address, {value: MIN_MINT_SINGLE_NFT})).to.be.revertedWith(
         "Total nft supply cannot exceed 100"
     );
   });
@@ -77,9 +77,9 @@ describe("FirstNft", function () {
     const {contract, owner} = await loadFixture(deployFixture);
 
     for (let i = 0; i < 98; i++) {
-      await expect(contract.mint(owner.address, {value: MIN_MINT_SINGLE_NFT})).not.to.be.reverted;
+      await expect(contract["mint(address)"](owner.address, {value: MIN_MINT_SINGLE_NFT})).not.to.be.reverted;
     }
-    await expect(contract.mintMany(owner.address, 2, {value: MINT_TWO_NFT})).to.be.revertedWith(
+    await expect(contract["mint(address,uint8)"](owner.address, 2, {value: MINT_TWO_NFT})).to.be.revertedWith(
         "Total nft supply cannot exceed 100"
     );
   });
@@ -87,7 +87,7 @@ describe("FirstNft", function () {
   it("Will transfer only to owner and change balance", async function () {
     const {contract, owner, otherAccount} = await loadFixture(deployFixture);
 
-    await expect(contract.mint(otherAccount.address, {value: MIN_MINT_SINGLE_NFT})).not.to.be.reverted;
+    await expect(contract["mint(address)"](otherAccount.address, {value: MIN_MINT_SINGLE_NFT})).not.to.be.reverted;
 
     expect(await ethers.provider.getBalance(contract.address)).to.equal(
         MIN_MINT_SINGLE_NFT

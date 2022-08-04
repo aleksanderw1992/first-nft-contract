@@ -14,26 +14,22 @@ contract FirstNft is ERC721Enumerable, ERC721URIStorage {
     uint private constant MIN_MINT_PRICE = 0.01 ether;
     uint private constant MAX_AMOUNT_PER_TRANSACTION = 5;
     
-    string private constant BASE_URI = "ipfs.io/ipfs/QmPwGTPxvbVtwhewh8CBSJg97oixpknexciHMvYTayhyGJ";
+    string private constant IMG_URL = "https://ipfs.io/ipfs/QmTsd2FfrD2x6yryLsrJ6ep95vR5sVrKg9RQxYHkzyAPvw?filename=Aleksander%20Wo%CC%81jcik%20druk-79.jpg";
 
     constructor() ERC721("FirstNft", "FN") public {
-    }
-    
-    function _baseURI() internal pure override returns (string memory) {
-        return BASE_URI;
     }
     
     /**
     * owner - allows to mint token for other user than msg.sender
     */
     function mint(address owner) public payable {
-        mintMany(owner, uint8(1));
+        mint(owner, uint8(1));
     }
 
     /**
     * owner - allows to mint token for other user than msg.sender
     */
-    function mintMany(address owner, uint8 amount) public payable {
+    function mint(address owner, uint8 amount) public payable {
         require(amount > 0 && amount <= 5, "You can mint at most 5 NFTs in single transaction");
         require(_counter.current() < MAX_SUPPLY - amount, "Total nft supply cannot exceed 100");
         require(msg.value >= MIN_MINT_PRICE * amount, "You need to pay at least 0.01 ETH for each NFT to mint");
@@ -42,8 +38,7 @@ contract FirstNft is ERC721Enumerable, ERC721URIStorage {
             _counter.increment();
             uint256 newItemId = _counter.current();
             _mint(owner, newItemId);
-            string memory tURI = string(abi.encodePacked(BASE_URI, "/", newItemId));
-            _setTokenURI(newItemId, tURI);
+            _setTokenURI(newItemId, IMG_URL);
         }
     }
 

@@ -9,4 +9,4 @@ With spec:
 - with unit tests for corner cases
 
 ETH contract:
-https://goerli.etherscan.io/tx/0x062a6b3a69080973ee48bd310cf0cc601544605f928a3310558bd14b231635ee
+https://goerli.etherscan.io/tx/0x49f47d941c447ef1213b1363005a9e8a2c80e88d722cb9c708b0ae5b55f5cdc5
