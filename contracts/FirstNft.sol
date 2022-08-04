@@ -13,31 +13,38 @@ contract FirstNft is ERC721Enumerable, ERC721URIStorage {
     uint private constant MAX_SUPPLY = 100;
     uint private constant MIN_MINT_PRICE = 0.01 ether;
     uint private constant MAX_AMOUNT_PER_TRANSACTION = 5;
+    
+    string private constant BASE_URI = "ipfs.io/ipfs/QmPwGTPxvbVtwhewh8CBSJg97oixpknexciHMvYTayhyGJ";
 
     constructor() ERC721("FirstNft", "FN") public {
     }
-
-    function mint(address owner, string memory tokenURI) public payable returns (uint256) {
-        string[] memory tokenURIs = new string[](1);
-        tokenURIs[0] = tokenURI;
-        return mintMany(owner, tokenURIs)[0];
-//        return mintMany(owner, new string[](tokenURI))[0]; // why TypeError: Invalid type for argument in function call. Invalid implicit conversion from string memory[1] memory to string memory[] memory requested.
+    
+    function _baseURI() internal pure override returns (string memory) {
+        return BASE_URI;
+    }
+    
+    /**
+    * owner - allows to mint token for other user than msg.sender
+    */
+    function mint(address owner) public payable {
+        mintMany(owner, uint8(1));
     }
 
-    function mintMany(address owner, string[] memory tokenURIs) public payable returns (uint256[] memory) {
-        require(tokenURIs.length > 0 && tokenURIs.length <= 5, "You can mint at most 5 NFTs in single transaction");
-        require(_counter.current() < MAX_SUPPLY - tokenURIs.length, "Total nft supply cannot exceed 100");
-        require(msg.value >= MIN_MINT_PRICE * tokenURIs.length, "You need to pay at least 0.01 ETH for each NFT to mint");
-        uint256[] memory result = new uint256[](tokenURIs.length);
+    /**
+    * owner - allows to mint token for other user than msg.sender
+    */
+    function mintMany(address owner, uint8 amount) public payable {
+        require(amount > 0 && amount <= 5, "You can mint at most 5 NFTs in single transaction");
+        require(_counter.current() < MAX_SUPPLY - amount, "Total nft supply cannot exceed 100");
+        require(msg.value >= MIN_MINT_PRICE * amount, "You need to pay at least 0.01 ETH for each NFT to mint");
 
-        for (uint i; i < tokenURIs.length; i++) {
+        for (uint i; i < amount; i++) {
             _counter.increment();
             uint256 newItemId = _counter.current();
             _mint(owner, newItemId);
-            _setTokenURI(newItemId, tokenURIs[i]); // todo change uri to ipfs
-            result[i] = newItemId;
+            string memory tURI = string(abi.encodePacked(BASE_URI, "/", newItemId));
+            _setTokenURI(newItemId, tURI);
         }
-        return result;
     }
 
     function withdraw() public onlyOwner {
