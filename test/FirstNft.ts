@@ -65,7 +65,7 @@ describe("FirstNft", function () {
   it("Will not mint 101 nft", async function () {
     const {contract, owner} = await loadFixture(deployFixture);
 
-    for (let i = 0; i < 99; i++) {
+    for (let i = 0; i < 100; i++) {
       await expect(contract["mint(address)"](owner.address, {value: MIN_MINT_SINGLE_NFT})).not.to.be.reverted;
     }
     await expect(contract["mint(address)"](owner.address, {value: MIN_MINT_SINGLE_NFT})).to.be.revertedWith(
@@ -76,7 +76,7 @@ describe("FirstNft", function () {
   it("Will not mint 101 nft - mint 2 nfts from 99 index", async function () {
     const {contract, owner} = await loadFixture(deployFixture);
 
-    for (let i = 0; i < 98; i++) {
+    for (let i = 0; i < 99; i++) {
       await expect(contract["mint(address)"](owner.address, {value: MIN_MINT_SINGLE_NFT})).not.to.be.reverted;
     }
     await expect(contract["mint(address,uint8)"](owner.address, 2, {value: MINT_TWO_NFT})).to.be.revertedWith(
